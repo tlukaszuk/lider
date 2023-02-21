@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+
+    <center>
+    <h2>Zamówienie</h2>
+    </center>
+
+    <table border="1" width="100%" class="table table-bordered">
+        <tr>
+            <td style="padding:10px" valign="top" width="50%">
+                <b>Klient:</b><br>
+                {{ farmer.name }}<br>
+                {{ farmer.location}}
+            </td>
+            <td style="padding:10px" valign="top" width="50%">
+                <b>Pola:</b><br>
+                {% for growing_field in growing_fields %}
+                {{ growing_field }}<br>
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding:5px">
+                <div class="col-sm-5">
+                <table class="table">
+                    <tr>
+                        <th>Nazwa towaru</th>
+                        <th>Ilość w tonach</th>
+                    </tr>
+                    <tr>
+                        <td>Lider Ca</td>
+                        <td>{{ lider_ca_weight }}</td>
+                    </tr>
+                    <tr>
+                        <td>Lider Mg</td>
+                        <td>{{ lider_mg_weight }}</td>
+                    </tr>
+                </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+  </div>
+</div>
+{% endblock %}

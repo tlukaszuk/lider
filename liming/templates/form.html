@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-1">
+  <form action="" method="post">
+      {% csrf_token %}
+
+      {% if form.errors %}
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger small">
+                    <strong>{{field.label}}: {{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header">Dane rolnika i pola</div>
+        <div class="card-body">
+            <div class="row">
+              <div class="col-sm-3">
+                 <label for="{{ form.farmer.id_for_label }}" class="col-form-label">{{ form.farmer.label }}</label>
+              </div>
+              <div class="col-sm-4">
+                  <div class="input-group">
+                     <select name="{{ form.farmer.html_name }}" class="form-select" value="{{ form.farmer.value }}" id="{{ form.farmer.id_for_label }}">
+                        {% for widget in form.farmer.subwidgets %}
+                            {{ widget }}
+                        {% endfor %}
+                     </select>
+                     <div class="input-group-append">
+                          <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#addFarmerModal" id="addFarmerButton">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                              </svg>
+                          </button>
+                     </div>
+                  </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                 <label for="{{ form.growing_field.id_for_label }}" class="col-form-label">{{ form.growing_field.label }}</label>
+              </div>
+              <div class="col-sm-4">
+                  <div class="input-group">
+                     <select name="{{ form.growing_field.html_name }}" class="form-select" value="{{ form.growing_field.value }}" id="{{ form.growing_field.id_for_label }}">
+                        {% for widget in form.growing_field.subwidgets %}
+                            {{ widget }}
+                        {% endfor %}
+                     </select>
+                     <div class="input-group-append">
+                         <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#addFieldModal" id="addFieldButton" disabled>
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                             </svg>
+                         </button>
+                     </div>
+                  </div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Regulacja PH</div>
+        <div class="card-body">
+            <div class="row">
+              <div class="col-sm-3">
+                 <label for="{{ form.pha_crop_type.id_for_label }}" class="col-form-label">{{ form.pha_crop_type.label }}</label>
+              </div>
+              <div class="col-sm-4">
+                 <select name="{{ form.pha_crop_type.html_name }}" class="form-select" value="{{ form.pha_crop_type.value }}" id="{{ form.pha_crop_type.id_for_label }}">
+                    {% for widget in form.pha_crop_type.subwidgets %}
+                        {{ widget }}
+                    {% endfor %}
+                 </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                 <label for="{{ form.pha_soil_agronomic_category.id_for_label }}" class="col-form-label">{{ form.pha_soil_agronomic_category.label }}</label>
+              </div>
+              <div class="col-sm-4">
+                 <select name="{{ form.pha_soil_agronomic_category.html_name }}" class="form-select" value="{{ form.pha_soil_agronomic_category.value }}" id="{{ form.pha_soil_agronomic_category.id_for_label }}" disabled>
+                    {% for widget in form.pha_soil_agronomic_category.subwidgets %}
+                        {{ widget }}
+                    {% endfor %}
+                 </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                 <label for="{{ form.pha_soil_ph_H2O.id_for_label }}" class="col-form-label">{{ form.pha_soil_ph_H2O.label }}</label>
+              </div>
+              <div class="col-sm-4">
+                 <select name="{{ form.pha_soil_ph_H2O.html_name }}" class="form-select" value="{{ form.pha_soil_ph_H2O.value }}" id="{{ form.pha_soil_ph_H2O.id_for_label }}" disabled>
+                    {% for widget in form.pha_soil_ph_H2O.subwidgets %}
+                        {{ widget }}
+                    {% endfor %}
+                 </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                 <label class="col-form-label">{{ form.pha_lider_ca_application_rate_per_hectare.label }}</label>
+              </div>
+              <div class="col-sm-4 d-flex align-items-center justify-content-center">
+                 <div class="{% if form.pha_lider_ca_application_rate_per_hectare.value %}fw-bold{% else %}text-muted{% endif %} text-center">
+                 {{ form.pha_lider_ca_application_rate_per_hectare.value|default_if_none:"???" }}</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                 <label class="col-form-label">{{ form.pha_lider_ca_application_rate_per_field.label }}</label>
+              </div>
+              <div class="col-sm-4 d-flex align-items-center justify-content-center">
+                 <div class="{% if form.pha_lider_ca_application_rate_per_field.value %}fw-bold{% else %}text-muted{% endif %}">
+                 {{ form.pha_lider_ca_application_rate_per_field.value|default_if_none:"???" }}</div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Potrzeby uprawowe</div>
+        <div class="card-body">
+            <div class="row">
+              <div class="col-sm-3">
+                 <label for="{{ form.cn_crop_kind.id_for_label }}" class="col-form-label">{{ form.cn_crop_kind.label }}</label>
+              </div>
+              <div class="col-sm-4">
+                 <select name="{{ form.cn_crop_kind.html_name }}" class="form-select" value="{{ form.cn_crop_kind.value }}" id="{{ form.cn_crop_kind.id_for_label }}">
+                    {% for widget in form.cn_crop_kind.subwidgets %}
+                        {{ widget }}
+                    {% endfor %}
+                 </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                 <label for="{{ form.cn_expected_yield.id_for_label }}" class="col-form-label">{{ form.cn_expected_yield.label }}</label>
+              </div>
+              <div class="col-sm-4">
+                 <select name="{{ form.cn_expected_yield.html_name }}" class="form-select" value="{{ form.cn_expected_yield.value }}" id="{{ form.cn_expected_yield.id_for_label }}" disabled>
+                    {% for widget in form.cn_expected_yield.subwidgets %}
+                        {{ widget }}
+                    {% endfor %}
+                 </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                 <label class="col-form-label">{{ form.cn_lider_mg_application_rate_per_hectare.label }}</label>
+              </div>
+              <div class="col-sm-4 d-flex align-items-center justify-content-center">
+                 <div class="{% if form.cn_lider_mg_application_rate_per_hectare.value %}fw-bold{% else %}text-muted{% endif %}">
+                 {{ form.cn_lider_mg_application_rate_per_hectare.value|default_if_none:"???" }}</div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-3">
+                 <label class="col-form-label">{{ form.cn_lider_mg_application_rate_per_field.label }}</label>
+              </div>
+              <div class="col-sm-4 d-flex align-items-center justify-content-center">
+                 <div class="{% if form.cn_lider_mg_application_rate_per_field.value %}fw-bold{% else %}text-muted{% endif %}">
+                 {{ form.cn_lider_mg_application_rate_per_field.value|default_if_none:"???" }}</div>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-9">
+                <button type="submit" class="btn btn-primary" name="calculate" data-bs-toggle="tooltip" data-bs-placement="top" title="Oblicz bez zapisywania zmian">Oblicz</button>
+                <button type="submit" class="btn btn-primary" name="save" data-bs-toggle="tooltip" data-bs-placement="top" title="Oblicz i zapisz zmiany (jeżeli istnieje działka/pole o numerach takich jak w formularzu jej dane zostaną nadpisane)">Oblicz i zapisz</button>
+                {% if form.pha_lider_ca_application_rate_per_field.value or form.cn_lider_mg_application_rate_per_field.value %}
+                <button type="submit" formaction="{% url 'report_pdf' %}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Generuj raport z analizy potrzeb nawozowych Lider">Raport</button>
+                <button type="submit" formaction="{% url 'prepare_order' %}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Przygotuj zamówienie">Zamówienie</button>
+                {% endif %}
+            </div>
+            <div class="col-sm-3">
+                <p class="text-muted fs-6">{{ form.date_of_calculation.label }}: {{ form.date_of_calculation.value|default_if_none:"???" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+  </form>
+</div>
+
+<!-- Modal Dodaj rolnika -->
+<div class="modal fade" id="addFarmerModal" tabindex="-1" aria-labelledby="addFarmerLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addFarmerLabel">Dodaj rolnika</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="addFarmerForm">
+          <div class="modal-body">
+               <div class="alert alert-danger alert-dismissible fade show" role="alert" id="addFarmerErrorAlert">
+                   Nie można dodać rolnika.<br>Rolnik o podanych danych już istnieje.
+               </div>
+               <div class="row">
+                   <div class="col-sm-4">
+                       <label for="{{ farmer_form.name.id_for_label }}" class="col-form-label">{{ farmer_form.name.label }}</label>
+                   </div>
+                   <div class="col-sm-7">
+                       <input type="text" class="form-control" name="{{ farmer_form.name.html_name }}" id="{{ farmer_form.name.id_for_label }}" maxlength="100" required>
+                   </div>
+               </div>
+               <div class="row">
+                   <div class="col-sm-4">
+                       <label for="{{ farmer_form.location.id_for_label }}" class="col-form-label">{{ farmer_form.location.label }}</label>
+                   </div>
+                   <div class="col-sm-7">
+                       <input type="text" class="form-control" name="{{ farmer_form.location.html_name }}" id="{{ farmer_form.location.id_for_label }}" maxlength="100" required>
+                   </div>
+               </div>
+               <div class="row">
+                   <div class="col-sm-4">
+                       <label for="{{ farmer_form.comments.id_for_label }}" class="col-form-label">{{ farmer_form.comments.label }}</label>
+                   </div>
+                   <div class="col-sm-7">
+                       <textarea class="form-control" name="{{ farmer_form.comments.html_name }}" id="{{ farmer_form.comments.id_for_label }}" rows="3" maxlength="300"></textarea>
+                   </div>
+               </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+            <button type="submit" class="btn btn-primary">Zapisz</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Dodaj pole -->
+<div class="modal fade" id="addFieldModal" tabindex="-1" aria-labelledby="addFieldLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addFieldLabel">Dodaj pole</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="addFieldForm">
+          <div class="modal-body">
+              <label class="col-form-label" id="farmerData">xxx</label>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert" id="addFieldErrorAlert">
+                   Nie można dodać pola.<br>Pole o podanych danych już istnieje.
+              </div>
+              <div class="row">
+                   <div class="col-sm-4">
+                       <label for="{{ field_form.field_number.id_for_label }}" class="col-form-label">{{ field_form.field_number.label }}</label>
+                   </div>
+                   <div class="col-sm-7">
+                       <input type="text" class="form-control" name="{{ field_form.field_number.html_name }}" id="{{ field_form.field_number.id_for_label }}" maxlength="20" required>
+                   </div>
+              </div>
+              <div class="row">
+                   <div class="col-sm-4">
+                       <label for="{{ field_form.area.id_for_label }}" class="col-form-label">{{ field_form.area.label }}</label>
+                   </div>
+                   <div class="col-sm-7">
+                       <input type="number" class="form-control" name="{{ field_form.area.html_name }}" id="{{ field_form.area.id_for_label }}" step="any" required>
+                   </div>
+              </div>
+              <div class="row">
+                   <div class="col-sm-4">
+                       <label for="{{ field_form.description.id_for_label }}" class="col-form-label">{{ field_form.description.label }}</label>
+                   </div>
+                   <div class="col-sm-7">
+                       <textarea class="form-control" name="{{ field_form.description.html_name }}" id="{{ field_form.description.id_for_label }}" rows="3" maxlength="300"></textarea>
+                   </div>
+              </div>
+              <div class="row">
+                   <div class="col-sm-4">
+                       <label for="{{ field_form.parcel_number.id_for_label }}" class="col-form-label">{{ field_form.parcel_number.label }}</label>
+                   </div>
+                   <div class="col-sm-7">
+                       <input type="text" class="form-control" name="{{ field_form.parcel_number.html_name }}" id="{{ field_form.parcel_number.id_for_label }}" maxlength="30" required>
+                   </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+            <button type="submit" class="btn btn-primary">Zapisz</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block extra_script %}
+
+// zmiana rolnika, ustaw do wyboru tylko pola nalezace do wybranego rolnika
+$("#{{ form.farmer.id_for_label }}").change(function () {
+    var farmer_id = $(this).val();
+    $.ajax({
+        url: '{% url "growing_fields_by_farmer" %}',
+        data: {'farmer_id': farmer_id},
+        dataType: 'json',
+        success: function (growing_fields) {
+            var $growing_field_select = $("#{{ form.growing_field.id_for_label }}");
+            $growing_field_select.empty();
+            $growing_field_select.append($("<option></option>").attr("value", "").text("---------"));
+            var growing_field_selected_value = $growing_field_select.attr("value");
+            var set_value = false;
+            $.each(growing_fields, function(value, desc) {
+                $growing_field_select.append($("<option></option>").attr("value", value).text(desc));
+                if (value == growing_field_selected_value) set_value = true;
+            });
+            if (set_value) $growing_field_select.val(growing_field_selected_value);
+        }
+    });
+    $("#addFieldButton").prop('disabled', (farmer_id==''));
+});
+
+$("#{{ form.farmer.id_for_label }}").change();
+
+
+// zmiana wyboru typu uprawy
+$("#{{ form.pha_crop_type.id_for_label }}").change(function () {
+    var crop_type = $(this).val();
+    var $pha_soil_agronomic_category_select = $("#{{ form.pha_soil_agronomic_category.id_for_label }}");
+    var $pha_soil_ph_H2O_select = $("#{{ form.pha_soil_ph_H2O.id_for_label }}");
+    if (crop_type == "GO") {
+        $pha_soil_agronomic_category_select.prop('disabled', false);
+        $pha_soil_ph_H2O_select.prop('disabled', false);
+    } else if (crop_type == "UZ") {
+        $pha_soil_agronomic_category_select.prop('disabled', true);
+        $pha_soil_agronomic_category_select.val('');
+        $pha_soil_ph_H2O_select.prop('disabled', false);
+    } else {
+        $pha_soil_agronomic_category_select.prop('disabled', true);
+        $pha_soil_agronomic_category_select.val('');
+        $pha_soil_ph_H2O_select.prop('disabled', true);
+        $pha_soil_ph_H2O_select.val('');
+    }
+});
+$("#{{ form.pha_crop_type.id_for_label }}").change();
+
+
+// zmiana wyboru rodzaju uprawy
+$("#{{ form.cn_crop_kind.id_for_label }}").change(function () {
+    var crop_kind = $(this).val();
+    var $cn_expected_yield_select = $("#{{ form.cn_expected_yield.id_for_label }}");
+    if (crop_kind == "") {
+         $cn_expected_yield_select.prop('disabled', true);
+         $cn_expected_yield_select.val('');
+    } else {
+        $cn_expected_yield_select.prop('disabled', false);
+    }
+});
+$("#{{ form.cn_crop_kind.id_for_label }}").change();
+
+
+// obsluga dodawania rolnika
+$("#addFarmerButton").click(function() {
+    $('#addFarmerErrorAlert').hide();
+    $('#addFarmerForm')[0].reset();
+});
+
+$(document).on('submit', '#addFarmerForm', function(e) {
+    $.ajax({
+        url: '{% url "add_farmer" %}',
+        dataType: 'json',
+        data: {
+            'name': $('#{{ farmer_form.name.id_for_label }}').val(),
+            'location': $('#{{ farmer_form.location.id_for_label }}').val(),
+            'comments': $('#{{ farmer_form.comments.id_for_label }}').val()
+        },
+        success: function(json) {
+            if (json.status == 'ok') {
+                $('#{{ form.farmer.id_for_label }}').append(new Option(json.added.desc, json.added.id));
+                $('#{{ form.farmer.id_for_label }}').val(json.added.id).change();
+                $('#addFarmerModal').modal('hide');
+            }
+            if (json.status == 'error') {
+                $('#addFarmerErrorAlert').show();
+                $('#addFarmerErrorAlert').delay(3000).fadeOut('slow');
+            }
+        },
+    });
+    return false;
+});
+
+
+// obsluga dodawania pola
+$("#addFieldButton").click(function() {
+    $('#addFieldErrorAlert').hide();
+    $('#addFieldForm')[0].reset();
+    $('#farmerData').html("Rolnik: " + $('#{{ form.farmer.id_for_label }} option:selected').text());
+});
+
+$(document).on('submit', '#addFieldForm', function(e) {
+    $.ajax({
+        url: '{% url "add_growing_field" %}',
+        dataType: 'json',
+        data: {
+            'farmer': $('#{{ form.farmer.id_for_label }}').val(),
+            'field_number': $('#{{ field_form.field_number.id_for_label }}').val(),
+            'area': $('#{{ field_form.area.id_for_label }}').val(),
+            'description': $('#{{ field_form.description.id_for_label }}').val(),
+            'parcel_number': $('#{{ field_form.parcel_number.id_for_label }}').val()
+        },
+        success: function(json) {
+            if (json.status == 'ok') {
+                $('#{{ form.growing_field.id_for_label }}').append(new Option(json.added.desc, json.added.id));
+                $('#{{ form.growing_field.id_for_label }}').val(json.added.id).change();
+                $('#addFieldModal').modal('hide');
+            }
+            if (json.status == 'error') {
+                $('#addFieldErrorAlert').show();
+                $('#addFieldErrorAlert').delay(3000).fadeOut('slow');
+            }
+        },
+    });
+    return false;
+});
+{% endblock %}

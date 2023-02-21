@@ -1,0 +1,25 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Raport z analizy potrzeb nawozowych Lider</title>
+    <style type="text/css">
+        @font-face {
+           font-family: "DejaVu";
+           src: url("{{ static_dir }}/font/DejaVuSansMono.ttf");
+        }
+        @font-face {
+            font-family: "DejaVu";
+            src: url("{{ static_dir }}/font/DejaVuSansMono-Bold.ttf");
+            font-weight: bold;
+        }
+        html { font-family: DejaVu; }
+    </style>
+</head>
+<body>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

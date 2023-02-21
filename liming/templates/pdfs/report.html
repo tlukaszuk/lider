@@ -1,0 +1,82 @@
+{% extends "pdfs/base_pdf.html" %}
+
+{% block content %}
+    Data: {{ ar.date_of_calculation|date:"Y-m-d" }}<br>
+    <br>
+
+    <center>
+    <h2>Raport z analizy potrzeb nawozowych Lider</h2>
+    </center>
+
+    <table border="1" >
+        <tr>
+            <td style="padding:10px" valign="top">
+                <b>Klient:</b><br>
+                {{ ar.farmer.name }}<br>
+                {{ ar.farmer.location}}
+            </td>
+            <td style="padding:10px" valign="top">
+                <b>Pole:</b><br>
+                {{ ar.growing_field }}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding:5px">
+                {% if ar.is_lider_ca_calculated %}
+                <b>Regulacja PH</b>
+                <table>
+                    <tr>
+                        <td>Typ uprawy:</td>
+                        <td>{{ ar.get_pha_crop_type_display }}</td>
+                    </tr>
+                    {% if ar.pha_soil_agronomic_category %}
+                    <tr>
+                        <td>Kategoria agronomiczna gleby:</td>
+                        <td>{{ ar.get_pha_soil_agronomic_category_display }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <td>Odczyn gleby (pHH2O):</td>
+                        <td>{{ ar.get_pha_soil_ph_H2O_display }}</td>
+                    </tr>
+                    <tr>
+                        <td>Dawka nawozu Lider Ca (t/ha):</td>
+                        <td>{{ ar.pha_lider_ca_application_rate_per_hectare }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#0000ff; font-weight:bold;">Dawka nawozu Lider Ca (t/pole):</td>
+                        <td style="color:#0000ff; font-weight:bold;">{{ ar.pha_lider_ca_application_rate_per_field }}</td>
+                    </tr>
+                </table>
+                {% endif %}
+                {% if ar.is_lider_mg_calculated %}
+                <b>Potrzeby uprawowe</b>
+                <table>
+                    <tr>
+                        <td>Rodzaj uprawy:</td>
+                        <td>{{ ar.get_cn_crop_kind_display }}</td>
+                    </tr>
+                    <tr>
+                        <td>Spodziewany plon:</td>
+                        <td>{{ ar.get_cn_expected_yield_display }}</td>
+                    </tr>
+                    <tr>
+                        <td>Dawka nawozu Lider Mg (t/ha)</td>
+                        <td>{{ ar.cn_lider_mg_application_rate_per_hectare }}</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#0000ff; font-weight:bold;">Dawka nawozu Lider Mg (t/pole):</td>
+                        <td style="color:#0000ff; font-weight:bold;">{{ ar.cn_lider_mg_application_rate_per_field }}</td>
+                    </tr>
+                </table>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding:5px">
+                <b>Przedstawiciel Rolpol:</b> {{ ar.operator.first_name }} {{ ar.operator.last_name }}
+            </td>
+        </tr>
+    </table>
+
+{% endblock %}

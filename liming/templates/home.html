@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <h3>Kalkulator nawozów</h3>
+    {%  if not user.is_authenticated %}
+        <h6>Nie jesteś zalogowany. Aby móc korzystać z serwisu podaj swoją nazwę użytkownika i hasło.</h6>
+        {% if login_error %}
+        Login error!!!
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}"/>
+            <div class="row">
+                <div class="col-sm-2">
+                    <label for="{{ login_form.username.id_for_label }}" class="col-form-label">{{ login_form.username.label }}</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="{{ login_form.username.html_name }}" type="text" class="form-control" id="{{ login_form.username.id_for_label }}" value="{{ login_form.username.value|default_if_none:"" }}" maxlength="150" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <label for="{{ login_form.password.id_for_label }}" class="col-form-label">{{ login_form.password.label }}</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="{{ login_form.password.html_name }}" type="password" class="form-control" id="{{ login_form.password.id_for_label }}" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                </div>
+                <div class="col-sm-3">
+                    <button class="btn btn-primary" type="submit">Zaloguj</button>
+                </div>
+            </div>
+        </form>
+        <a class="nav-link" href="{% url 'login' %}?next={{ next }}">Zaloguj mnie</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

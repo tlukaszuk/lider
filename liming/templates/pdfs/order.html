@@ -1,0 +1,35 @@
+{% extends "pdfs/base_pdf.html" %}
+
+{% block content %}
+    Data: {{ ar.date_of_calculation|date:"Y-m-d" }}<br>
+    <br>
+
+    <center>
+    <h2>Zamówienie</h2>
+    </center>
+
+    <table border="1" >
+        <tr>
+            <td style="padding:10px" valign="top">
+                <b>Klient:</b><br>
+                {{ ar.farmer.name }}<br>
+                {{ ar.farmer.location}}
+            </td>
+            <td style="padding:10px" valign="top">
+                <b>Pole:</b><br>
+                {{ ar.growing_field }}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding:5px">
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding:5px">
+                <b>Przedstawiciel Rolpol:</b> {{ ar.operator.first_name }} {{ ar.operator.last_name }}
+            </td>
+        </tr>
+    </table>
+
+{% endblock %}

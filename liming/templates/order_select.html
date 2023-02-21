@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Rolnik</th>
+          <th scope="col">Pole</th>
+          <th scope="col">Dawka nawozu Lider Ca</th>
+          <th scope="col">Dawka nawozu Lider Mg</th>
+          <th scope="col">Data wyliczenia</th>
+          <th scope="col">Operator</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ar in application_rates %}
+        <tr>
+          <td>{{ ar.farmer }}</td>
+          <td>{{ ar.growing_field }}</td>
+          <td>{{ ar.pha_lider_ca_application_rate_per_field|default_if_none:"-" }}</td>
+          <td>{{ ar.cn_lider_mg_application_rate_per_field|default_if_none:"-" }}</td>
+          <td>{{ ar.date_of_calculation }}</td>
+          <td>{{ ar.operator.first_name }} {{ ar.operator.last_name.0 }}.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block extra_script %}
+
+{% endblock %}
