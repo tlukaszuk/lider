@@ -12,9 +12,11 @@ urlpatterns = [
     path('logout/', views.account_logout, name='logout'),
     path('report_pdf/', views.create_report_pdf, name='report_pdf'),
     path('report_pdf/<int:ar_id>/', views.create_report_pdf, name='report_pdf_by_id'),
+    path('orders/', views.orders, name='orders'),
     path('prepare_order/', views.prepare_order, name='prepare_order'),
     path('prepare_order/<str:ar_ids>/', views.prepare_order, name='prepare_order_by_ids'),
-    path('order_select/', views.order_select, name='order_select'),
+    path('order_pdf/', views.create_order_pdf, name='order_pdf'),
+    path('order_pdf_with_save/', views.create_order_pdf, {'save': True}, name='order_pdf_with_save'),
 
     path('ajax/growing_fields_by_farmer/', views.growing_fields_by_farmer, name='growing_fields_by_farmer'),
     path('ajax/add_farmer/', views.add_farmer, name='add_farmer'),

@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 
-from .forms import ApplicationRateForm, FarmerForm, GrowingFieldForm
+from .forms import ApplicationRateForm, FarmerForm, GrowingFieldForm, OrderForm
 from .models import ApplicationRate, GrowingField, Farmer
 
 
@@ -103,9 +103,9 @@ def history(request):
 
 
 @login_required
-def order_select(request):
+def orders(request):
     application_rates = ApplicationRate.objects.all().order_by('farmer', 'growing_field')
-    return render(request, 'order_select.html', {'application_rates':application_rates})
+    return render(request, 'orders.html', {'application_rates':application_rates})
 
 
 def growing_fields_by_farmer(request):
@@ -176,8 +176,6 @@ def prepare_order(request, ar_ids=None):
     else:
         application_rates = [ApplicationRate.objects.get(pk=int(ar_id)) for ar_id in ar_ids.split(',')]
 
-    operator = request.user
-    date = datetime.date.today()
     farmer = application_rates[0].farmer
     growing_fields = []
     lider_ca_weight = 0
@@ -193,28 +191,47 @@ def prepare_order(request, ar_ids=None):
         if ar.cn_lider_mg_application_rate_per_field is not None:
             lider_mg_weight += ar.cn_lider_mg_application_rate_per_field
 
-    return render(request, 'order_prepare.html', {
-        'operator': operator,
-        'date': date,
-        'farmer': farmer,
-        'growing_fields': growing_fields,
-        'lider_ca_weight': lider_ca_weight,
-        'lider_mg_weight': lider_mg_weight,
-        'one_farmer': one_farmer
-    })
+    if one_farmer:
+        order_form = OrderForm(initial={
+            "farmer": farmer,
+            "client": f"{farmer.name}\n{farmer.location}",
+            "growing_fields": "\n".join([str(gf) for gf in growing_fields]),
+            "lider_ca_weight": lider_ca_weight,
+            "lider_mg_weight": lider_mg_weight,
+            "lider_ca_price": 500.00,
+            "lider_mg_price": 500.00
+        })
+    else:
+        order_form = None
+
+    return render(request, 'order_prepare.html', {'order_form': order_form})
 
 
-    # template = get_template("pdfs/order.html")
-    # html = template.render({
-    #     "static_dir": settings.STATIC_ROOT,
-    #     "ar": application_rate
-    # })
-    # result = BytesIO()
-    # pdf = pisa.pisaDocument(
-    #     src=BytesIO(html.encode('UTF-8')),
-    #     dest=result,
-    #     encoding='UTF-8'
-    # )
-    # if not pdf.err:
-    #     return HttpResponse(result.getvalue(), content_type='application/pdf')
-    # return None
+@login_required
+def create_order_pdf(request, save=False):
+    if request.method == 'POST':
+        order_form = OrderForm(request.POST)
+        if order_form.is_valid():
+            order = order_form.save(commit=False)
+            order.operator = f"{request.user.first_name} {request.user.last_name}"
+            order.date = datetime.date.today()
+
+            if save:
+                order.save()
+
+            template = get_template("pdfs/order.html")
+            html = template.render({
+                "static_dir": settings.STATIC_ROOT,
+                "order": order
+            })
+            result = BytesIO()
+            pdf = pisa.pisaDocument(
+                src=BytesIO(html.encode('UTF-8')),
+                dest=result,
+                encoding='UTF-8'
+            )
+            if not pdf.err:
+                return HttpResponse(result.getvalue(), content_type='application/pdf')
+        else:
+            return render(request, 'order_prepare.html', {'order_form': order_form})
+    return None

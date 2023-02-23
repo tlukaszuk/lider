@@ -12,14 +12,11 @@
         <tr>
             <td style="padding:10px" valign="top" width="50%">
                 <b>Klient:</b><br>
-                {{ farmer.name }}<br>
-                {{ farmer.location}}
+                {{ order_form.client.value|linebreaksbr }}
             </td>
             <td style="padding:10px" valign="top" width="50%">
                 <b>Pola:</b><br>
-                {% for growing_field in growing_fields %}
-                {{ growing_field }}<br>
-                {% endfor %}
+                {{ order_form.growing_fields.value|linebreaksbr }}
             </td>
         </tr>
         <tr>
@@ -32,17 +29,71 @@
                     </tr>
                     <tr>
                         <td>Lider Ca</td>
-                        <td>{{ lider_ca_weight }}</td>
+                        <td>{{ order_form.lider_ca_weight.value }}</td>
                     </tr>
                     <tr>
                         <td>Lider Mg</td>
-                        <td>{{ lider_mg_weight }}</td>
+                        <td>{{ order_form.lider_mg_weight.value }}</td>
                     </tr>
                 </table>
                 </div>
             </td>
         </tr>
     </table>
+
+    <div class="container mt-1">
+      <form action="" method="post">
+          {% csrf_token %}
+          {{ order_form.farmer }}
+          {{ order_form.client }}
+          {{ order_form.growing_fields }}
+          {{ order_form.lider_ca_weight }}
+          {{ order_form.lider_mg_weight }}
+          <div class="card">
+             <div class="card-header">Parametry zamówienia</div>
+             <div class="card-body">
+                  <div class="row">
+                      <div class="col-sm-3">
+                         <label for="{{ order_form.lider_ca_price.id_for_label }}" class="col-form-label">{{ order_form.lider_ca_price.label }}</label>
+                      </div>
+                      <div class="col-sm-2">
+                         <input type="number" name="{{ order_form.lider_ca_price.html_name }}" class="form-control" id="{{ order_form.lider_ca_price.id_for_label }}" value="{{ order_form.lider_ca_price.value }}" min="0.0" step="any" required>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-sm-3">
+                         <label for="{{ order_form.lider_mg_price.id_for_label }}" class="col-form-label">{{ order_form.lider_mg_price.label }}</label>
+                      </div>
+                      <div class="col-sm-2">
+                         <input type="number" name="{{ order_form.lider_mg_price.html_name }}" class="form-control" id="{{ order_form.lider_mg_price.id_for_label }}" value="{{ order_form.lider_mg_price.value }}" min="0.0" step="any" required>
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-sm-3">
+                         <label for="{{ order_form.packing_type.id_for_label }}" class="col-form-label">{{ order_form.packing_type.label }}</label>
+                      </div>
+                      <div class="col-sm-2">
+                         <select name="{{ order_form.packing_type.html_name }}" class="form-select" value="{{ order_form.packing_type.value }}" id="{{ order_form.packing_type.id_for_label }}">
+                            {% for widget in order_form.packing_type.subwidgets %}
+                                {{ widget }}
+                            {% endfor %}
+                         </select>
+                      </div>
+                  </div>
+               </div>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                  <div class="col-sm-9">
+                    <button type="submit" formaction="{% url 'order_pdf' %}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Generuj zamówienie">Generuj</button>
+                    <button type="submit" formaction="{% url 'order_pdf_with_save' %}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Generuj zamówienie i zapamiętaj w bazie danych">Generuj i zapisz</button>
+                  </div>
+              </div>
+            </div>
+          </div>
+      </form>
+    </div>
 
   </div>
 </div>

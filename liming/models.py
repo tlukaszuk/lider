@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 import datetime
+from django.utils.timezone import localtime
 
 
 
@@ -19,6 +20,8 @@ class Farmer(models.Model):
     class Meta:
         unique_together = ('name', 'location')
         ordering = ['name']
+        verbose_name = "Rolnik"
+        verbose_name_plural = "Rolnicy"
 
 
 
@@ -35,6 +38,8 @@ class GrowingField(models.Model):
     class Meta:
         unique_together = ('farmer', 'field_number', 'parcel_number')
         ordering = ['field_number']
+        verbose_name = "Pole"
+        verbose_name_plural = "Pola"
 
 
 
@@ -88,6 +93,8 @@ class ApplicationRate(models.Model):
 
     class Meta:
         unique_together = ('growing_field', 'operator')
+        verbose_name = "Formularz aplikacji nawozów"
+        verbose_name_plural = "Formularze aplikacji nawozów"
 
     def clean(self):
         if hasattr(self, 'farmer') and hasattr(self, 'growing_field') and (self.growing_field.farmer != self.farmer):
@@ -95,7 +102,7 @@ class ApplicationRate(models.Model):
         super().clean()
 
     def __str__(self):
-        return f"{self.growing_field} - {self.date_of_calculation} - {self.operator}"
+        return f"{self.farmer}, pole: {self.growing_field} - {self.date_of_calculation} / {self.operator.first_name} {self.operator.last_name}"
 
 
     # wyliczenie dawek Lider Ca
@@ -162,3 +169,56 @@ class ApplicationRate(models.Model):
     @property
     def is_lider_mg_calculated(self):
         return self.cn_lider_mg_application_rate_per_field is not None
+
+
+
+class Order(models.Model):
+    farmer = models.ForeignKey('Farmer', on_delete=models.CASCADE)
+    client = models.CharField(max_length=202)
+    growing_fields = models.CharField(max_length=200)
+    lider_ca_weight = models.FloatField()
+    lider_mg_weight = models.FloatField()
+    lider_ca_price = models.FloatField("cena Lider Ca", validators=[MinValueValidator(0.0)])
+    lider_mg_price = models.FloatField("cena Lider Mg", validators=[MinValueValidator(0.0)])
+    packing_type = models.CharField("rodzaj opakowania", max_length=1, choices=[('P','Paleta'), ('B','Big bag')])
+    operator = models.CharField(max_length=100)
+    date = models.DateField()
+    creation_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['date', 'client']
+        verbose_name = "Zamówienie"
+        verbose_name_plural = "Zamówienia"
+
+    @property
+    def client_name(self):
+        return self.client.split('\n')[0]
+
+    @property
+    def lider_ca_weight_rounded(self):
+        return f"{self.lider_ca_weight:.3f}"
+
+    @property
+    def lider_mg_weight_rounded(self):
+        return f"{self.lider_mg_weight:.3f}"
+
+    @property
+    def lider_ca_price_rounded(self):
+        return f"{self.lider_ca_price:.2f}"
+
+    @property
+    def lider_mg_price_rounded(self):
+        return f"{self.lider_mg_price:.2f}"
+
+    @property
+    def lider_ca_amount_rounded(self):
+        return f"{(self.lider_ca_price * self.lider_ca_weight):.2f}"
+
+    @property
+    def lider_mg_amount_rounded(self):
+        return f"{(self.lider_mg_price * self.lider_mg_weight):.2f}"
+
+    def __str__(self):
+        return f"{self.client_name} - {localtime(self.creation_time).strftime('%Y-%m-%d %H:%M:%S')} / {self.operator}"
+
+

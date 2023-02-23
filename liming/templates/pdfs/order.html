@@ -1,33 +1,59 @@
 {% extends "pdfs/base_pdf.html" %}
 
+{% block title %}Zamówienie: {{ order }}{% endblock %}
+
 {% block content %}
-    Data: {{ ar.date_of_calculation|date:"Y-m-d" }}<br>
+    Data: {{ order.date|date:"Y-m-d" }}<br>
     <br>
 
     <center>
     <h2>Zamówienie</h2>
     </center>
 
-    <table border="1" >
+    <table border="1">
         <tr>
             <td style="padding:10px" valign="top">
                 <b>Klient:</b><br>
-                {{ ar.farmer.name }}<br>
-                {{ ar.farmer.location}}
+                {{ order.client|linebreaksbr }}
             </td>
             <td style="padding:10px" valign="top">
-                <b>Pole:</b><br>
-                {{ ar.growing_field }}
+                <b>Pola:</b><br>
+                {{ order.growing_fields|linebreaksbr }}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding:10px">
+                <table border="1" width="100%">
+                    <tr>
+                        <th width="25%" align="left">Nazwa</th>
+                        <th width="25%" align="right">Ilość (t)</th>
+                        <th width="25%" align="right">Cena (PLN/t)</th>
+                        <th width="25%" align="right">Wartość (PLN)</th>
+                    </tr>
+                    {% if order.lider_ca_weight > 0 %}
+                    <tr>
+                        <td align="left">Lider Ca</td>
+                        <td align="right">{{ order.lider_ca_weight_rounded }}</td>
+                        <td align="right">{{ order.lider_ca_price_rounded }}</td>
+                        <td align="right">{{ order.lider_ca_amount_rounded }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if order.lider_mg_weight > 0 %}
+                    <tr>
+                        <td align="left">Lider Mg</td>
+                        <td align="right">{{ order.lider_mg_weight_rounded }}</td>
+                        <td align="right">{{ order.lider_mg_price_rounded }}</td>
+                        <td align="right">{{ order.lider_mg_amount_rounded }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+                <br>
+                Rodzaj opakowania: {{ order.get_packing_type_display }}
             </td>
         </tr>
         <tr>
             <td colspan="2" style="padding:5px">
-
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" style="padding:5px">
-                <b>Przedstawiciel Rolpol:</b> {{ ar.operator.first_name }} {{ ar.operator.last_name }}
+                <b>Przedstawiciel Rolpol:</b> {{ order.operator }}
             </td>
         </tr>
     </table>

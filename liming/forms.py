@@ -1,5 +1,5 @@
-from django.forms import ModelForm, TextInput
-from .models import ApplicationRate, Farmer, GrowingField
+from django.forms import ModelForm, TextInput, HiddenInput
+from .models import ApplicationRate, Farmer, GrowingField, Order
 
 
 class ApplicationRateForm(ModelForm):
@@ -30,3 +30,17 @@ class GrowingFieldForm(ModelForm):
     class Meta:
         model = GrowingField
         fields = ['field_number', 'area', 'description', 'parcel_number', 'farmer']
+
+
+class OrderForm(ModelForm):
+    class Meta:
+        model = Order
+        fields = ['farmer', 'client', 'growing_fields', 'lider_ca_weight', 'lider_mg_weight', 'lider_ca_price', 'lider_mg_price', 'packing_type']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in ('farmer', 'client', 'growing_fields', 'lider_ca_weight', 'lider_mg_weight'):
+            self.fields[field_name].widget = HiddenInput()
+        self.fields['packing_type'].choices = self.fields['packing_type'].choices[1:]
+
+
