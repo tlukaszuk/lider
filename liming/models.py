@@ -170,6 +170,20 @@ class ApplicationRate(models.Model):
     def is_lider_mg_calculated(self):
         return self.cn_lider_mg_application_rate_per_field is not None
 
+    @property
+    def lider_ca_per_field_rounded(self):
+        if self.pha_lider_ca_application_rate_per_field is not None:
+            return f"{self.pha_lider_ca_application_rate_per_field:.3f}"
+        else:
+            return "-"
+
+    @property
+    def lider_mg_per_field_rounded(self):
+        if self.cn_lider_mg_application_rate_per_field is not None:
+            return f"{self.cn_lider_mg_application_rate_per_field:.3f}"
+        else:
+            return "-"
+
 
 
 class Order(models.Model):

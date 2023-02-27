@@ -1,4 +1,5 @@
 from django.forms import ModelForm, TextInput, HiddenInput
+from django import forms
 from .models import ApplicationRate, Farmer, GrowingField, Order
 
 
@@ -43,4 +44,7 @@ class OrderForm(ModelForm):
             self.fields[field_name].widget = HiddenInput()
         self.fields['packing_type'].choices = self.fields['packing_type'].choices[1:]
 
+
+class SelectFarmerForm(forms.Form):
+    farmer = forms.ModelChoiceField(label="Wybierz rolnika", queryset=Farmer.objects.all())
 

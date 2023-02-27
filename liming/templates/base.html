@@ -26,10 +26,10 @@
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'form' %}">Nowe wyliczenie</a>
+                  <a class="nav-link" href="{% url 'ar_new' %}">Nowa analiza</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'history' %}">Historia</a>
+                  <a class="nav-link" href="{% url 'history' %}">Historia analiz</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'orders' %}">Zamówienia</a>
@@ -49,10 +49,14 @@
 </body>
 
 <script>
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+    function init_tooltips() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    }
+
+    init_tooltips();
 
     {% block extra_script %}{% endblock %}
 </script>

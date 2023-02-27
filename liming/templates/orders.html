@@ -1,37 +1,166 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="card">
-  <div class="card-body">
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Rolnik</th>
-          <th scope="col">Pole</th>
-          <th scope="col">Dawka nawozu Lider Ca</th>
-          <th scope="col">Dawka nawozu Lider Mg</th>
-          <th scope="col">Data wyliczenia</th>
-          <th scope="col">Operator</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for ar in application_rates %}
-        <tr>
-          <td>{{ ar.farmer }}</td>
-          <td>{{ ar.growing_field }}</td>
-          <td>{{ ar.pha_lider_ca_application_rate_per_field|default_if_none:"-" }}</td>
-          <td>{{ ar.cn_lider_mg_application_rate_per_field|default_if_none:"-" }}</td>
-          <td>{{ ar.date_of_calculation }}</td>
-          <td>{{ ar.operator.first_name }} {{ ar.operator.last_name.0 }}.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<div class="container mt-1">
+    <div class="card">
+      <div class="card-body">
+          <div class="row">
+              <div class="col-sm-2">
+                 <label for="{{ farmer_form.farmer.id_for_label }}" class="col-form-label">{{ farmer_form.farmer.label }}</label>
+              </div>
+              <div class="col-sm-4">
+                  <select name="{{ farmer_form.farmer.html_name }}" class="form-select" value="{{ farmer_form.farmer.value }}" id="{{ farmer_form.farmer.id_for_label }}">
+                    {% for widget in farmer_form.farmer.subwidgets %}
+                        {{ widget }}
+                    {% endfor %}
+                  </select>
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <div class="card" id="newOrderCard" style="display:none">
+      <div class="card-header">Nowe zamówienie</div>
+      <div class="card-body">
+        <form method="get" id="newOrderForm">
+            <table class="table table-hover" id="newOrderTable">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">Pole</th>
+                  <th scope="col">Dawka nawozu Lider Ca</th>
+                  <th scope="col">Dawka nawozu Lider Mg</th>
+                  <th scope="col">Data wyliczenia</th>
+                  <th scope="col">Przedstawiciel Rolpol</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" id="prepareOrderAlert">
+                Należy zaznaczyć przynajmniej jedną pozycję powyżej.
+            </div>
+            <button type="submit" id="prepareOrderButton" class="btn btn-success">Przygotuj zamówienie</button>
+        </form>
+        <div class="alert alert-warning" id="noApplicationRatesInfo" role="alert" style="display:none">Nie utworzono jeszcze żadnych analiz dla wybranego rolnika. Analizę możesz utworzyć wybierając z menu "Nowa analiza".</div>
+      </div>
+    </div>
+
+    <div class="card" id="currentOrdersCard" style="display:none">
+      <div class="card-header">Utworzone zamówienia</div>
+      <div class="card-body">
+        <table class="table table-hover" id="currentOrdersTable">
+          <thead>
+            <tr>
+              <th scope="col">Pola</th>
+              <th scope="col">Lider Ca (waga/cena za t)</th>
+              <th scope="col">Lider Mg (waga/cena za t)</th>
+              <th scope="col">Rodzaj opakowania</th>
+              <th scope="col">Data</th>
+              <th scope="col">Przedstawiciel Rolpol</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+        <div class="alert alert-warning" id="noCurrentOrdersInfo" role="alert" style="display:none">Nie utworzono jeszcze żadnych zamówień dla wybranego rolnika.</div>
+      </div>
+    </div>
+
 </div>
 {% endblock %}
 
 
 {% block extra_script %}
+
+// zmiana rolnika
+$("#{{ farmer_form.farmer.id_for_label }}").change(function () {
+    var farmer_id = $(this).val();
+    $.ajax({
+        url: '{% url "orders_by_farmer" %}',
+        data: {'farmer_id': farmer_id},
+        dataType: 'json',
+        success: function(data) {
+            $('#currentOrdersTable tbody').empty();
+            if (data.orders.length > 0) {
+                var order_pdf_link_patern = '<a href=\"URL_HERE\" class=\"link-success\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"Generuj zamówienie pdf\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-card-list\" viewBox=\"0 0 16 16\"><path d=\"M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z\"/><path d=\"M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8zm0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z\"/></svg></a>';
+                for (order of data.orders) {
+                    var lider_ca_info = (order.lider_ca_weight != '0.000' ? order.lider_ca_weight + ' / ' + order.lider_ca_price : '-');
+                    var lider_mg_info = (order.lider_mg_weight != '0.000' ? order.lider_mg_weight + ' / ' + order.lider_mg_price : '-');
+                    $('#currentOrdersTable > tbody:last-child').append($('<tr>')
+                        .append($('<td>').append(order.growing_fields.replaceAll('\n', '<br>')))
+                        .append($('<td>').append(lider_ca_info))
+                        .append($('<td>').append(lider_mg_info))
+                        .append($('<td>').append(order.packing_type))
+                        .append($('<td>').append(order.date))
+                        .append($('<td>').append(order.operator))
+                        .append($('<td>').append(order_pdf_link_patern.replace('URL_HERE', order.url)))
+                    );
+                }
+                init_tooltips();
+                $("#currentOrdersTable").show();
+                $("#noCurrentOrdersInfo").hide();
+            } else {
+                $("#currentOrdersTable").hide();
+                $("#noCurrentOrdersInfo").show();
+            }
+            if (farmer_id == '') {
+                $("#currentOrdersCard").hide();
+            } else {
+                $("#currentOrdersCard").show();
+            }
+        }
+    });
+    $.ajax({
+        url: '{% url "application_rates_by_farmer" %}',
+        data: {'farmer_id': farmer_id},
+        dataType: 'json',
+        success: function(data) {
+            $('#newOrderTable tbody').empty();
+            if (data.application_rates.length > 0) {
+                for (ar of data.application_rates) {
+                    $('#newOrderTable > tbody:last-child').append($('<tr>')
+                        .append($('<td>').append("<input class=\"form-check-input\" type=\"checkbox\" value=\"" + ar.id + "\" name=\"checkboxNewOrder\" aria-label=\"...\">"))
+                        .append($('<td>').append(ar.growing_field))
+                        .append($('<td>').append(ar.lider_ca_weight))
+                        .append($('<td>').append(ar.lider_mg_weight))
+                        .append($('<td>').append(ar.date))
+                        .append($('<td>').append(ar.operator))
+                    );
+                }
+                $("#newOrderTable").show();
+                $("#prepareOrderButton").show();
+                $("#noApplicationRatesInfo").hide();
+                $('#prepareOrderAlert').hide();
+            } else {
+                $("#newOrderTable").hide();
+                $("#prepareOrderButton").hide();
+                $('#prepareOrderAlert').hide();
+                $("#noApplicationRatesInfo").show();
+            }
+            if (farmer_id == '') {
+                $("#newOrderCard").hide();
+            } else {
+                $("#newOrderCard").show();
+            }
+        }
+    });
+});
+
+$("#newOrderForm").submit(function(){
+    var ar_ids = [];
+    $.each($("input[name='checkboxNewOrder']:checked"), function(){
+        ar_ids.push($(this).val());
+    });
+    if (ar_ids.length > 0) {
+        event.preventDefault();
+        window.location = "{% url 'prepare_order_by_ids' 'AR_IDS' %}".replace('AR_IDS', ar_ids.join(','));
+    } else {
+        $('#prepareOrderAlert').show();
+        $('#prepareOrderAlert').delay(3000).fadeOut('slow');
+    }
+    return false;
+});
 
 {% endblock %}

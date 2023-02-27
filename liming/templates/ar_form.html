@@ -315,16 +315,16 @@ $("#{{ form.farmer.id_for_label }}").change(function () {
         url: '{% url "growing_fields_by_farmer" %}',
         data: {'farmer_id': farmer_id},
         dataType: 'json',
-        success: function (growing_fields) {
+        success: function(data) {
             var $growing_field_select = $("#{{ form.growing_field.id_for_label }}");
             $growing_field_select.empty();
             $growing_field_select.append($("<option></option>").attr("value", "").text("---------"));
             var growing_field_selected_value = $growing_field_select.attr("value");
             var set_value = false;
-            $.each(growing_fields, function(value, desc) {
-                $growing_field_select.append($("<option></option>").attr("value", value).text(desc));
-                if (value == growing_field_selected_value) set_value = true;
-            });
+            for (gf of data.growing_fields) {
+                $growing_field_select.append($("<option></option>").attr("value", gf.id).text(gf.desc));
+                if (gf.id == growing_field_selected_value) set_value = true;
+            }
             if (set_value) $growing_field_select.val(growing_field_selected_value);
         }
     });

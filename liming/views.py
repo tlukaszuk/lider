@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import Http404
 from django.http import JsonResponse
+from django.urls import reverse
 
 import datetime
 
@@ -14,8 +15,8 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 
-from .forms import ApplicationRateForm, FarmerForm, GrowingFieldForm, OrderForm
-from .models import ApplicationRate, GrowingField, Farmer
+from .forms import ApplicationRateForm, FarmerForm, GrowingFieldForm, OrderForm, SelectFarmerForm
+from .models import ApplicationRate, GrowingField, Order
 
 
 # def home(request):
@@ -60,7 +61,7 @@ def account_logout(request):
 
 
 @login_required
-def form(request, ar_id=None):
+def ar_form(request, ar_id=None):
     if request.method == 'POST':
         form = ApplicationRateForm(request.POST)
         if form.is_valid():
@@ -83,11 +84,11 @@ def form(request, ar_id=None):
             form = ApplicationRateForm(instance=instance)
         else:
             form = ApplicationRateForm()
-    return render(request, 'form.html', {"form":form, "farmer_form":FarmerForm(), "field_form":GrowingFieldForm()})
+    return render(request, 'ar_form.html', {"form":form, "farmer_form":FarmerForm(), "field_form":GrowingFieldForm()})
 
 
 @login_required
-def remove(request, ar_id):
+def ar_remove(request, ar_id):
     instance = get_object_or_404(ApplicationRate, pk=ar_id)
     if instance.operator != request.user:
         raise Http404("Brak uprawnien")
@@ -104,17 +105,56 @@ def history(request):
 
 @login_required
 def orders(request):
-    application_rates = ApplicationRate.objects.all().order_by('farmer', 'growing_field')
-    return render(request, 'orders.html', {'application_rates':application_rates})
+    farmer_form = SelectFarmerForm()
+    return render(request, 'orders.html', {'farmer_form':farmer_form})
 
 
 def growing_fields_by_farmer(request):
     farmer_id = request.GET.get('farmer_id', None)
     if (farmer_id is not None) and (farmer_id != ''):
-        growing_fields_dict = {gf.id:str(gf) for gf in GrowingField.objects.filter(farmer_id=farmer_id)}
+        growing_fields_list = [{
+            "id": gf.id,
+            "desc": str(gf)
+        } for gf in GrowingField.objects.filter(farmer_id=farmer_id)]
     else:
-        growing_fields_dict = {}
-    return JsonResponse(growing_fields_dict)
+        growing_fields_list = []
+    return JsonResponse({"growing_fields": growing_fields_list})
+
+
+def orders_by_farmer(request):
+    farmer_id = request.GET.get('farmer_id', None)
+    if (farmer_id is not None) and (farmer_id != ''):
+        orders_list = [{
+            "id": order.id,
+            "growing_fields": order.growing_fields,
+            "lider_ca_weight": order.lider_ca_weight_rounded,
+            "lider_mg_weight": order.lider_mg_weight_rounded,
+            "lider_ca_price": order.lider_ca_price_rounded,
+            "lider_mg_price": order.lider_mg_price_rounded,
+            "packing_type": order.get_packing_type_display(),
+            "operator": order.operator,
+            "date": order.date.strftime("%Y-%m-%d"),
+            "url": reverse("order_pdf_by_id", args=[order.id])
+        } for order in Order.objects.filter(farmer_id=farmer_id).order_by("-date", "-creation_time")]
+    else:
+        orders_list = []
+    return JsonResponse({"orders": orders_list})
+
+
+def application_rates_by_farmer(request):
+    farmer_id = request.GET.get('farmer_id', None)
+    if (farmer_id is not None) and (farmer_id != ''):
+        application_rates_list = [{
+            "id": ar.id,
+            "growing_field": str(ar.growing_field),
+            "lider_ca_weight": ar.lider_ca_per_field_rounded,
+            "lider_mg_weight": ar.lider_mg_per_field_rounded,
+            "operator": f"{ar.operator.first_name} {ar.operator.last_name}",
+            "date": ar.date_of_calculation.strftime("%Y-%m-%d")
+        } for ar in ApplicationRate.objects.filter(farmer_id=farmer_id).order_by("-date_of_calculation")]
+    else:
+        application_rates_list = []
+    return JsonResponse({"application_rates": application_rates_list})
 
 
 def add_farmer(request):
@@ -208,7 +248,7 @@ def prepare_order(request, ar_ids=None):
 
 
 @login_required
-def create_order_pdf(request, save=False):
+def create_order_pdf(request, order_id=None, save=False):
     if request.method == 'POST':
         order_form = OrderForm(request.POST)
         if order_form.is_valid():
@@ -218,20 +258,22 @@ def create_order_pdf(request, save=False):
 
             if save:
                 order.save()
-
-            template = get_template("pdfs/order.html")
-            html = template.render({
-                "static_dir": settings.STATIC_ROOT,
-                "order": order
-            })
-            result = BytesIO()
-            pdf = pisa.pisaDocument(
-                src=BytesIO(html.encode('UTF-8')),
-                dest=result,
-                encoding='UTF-8'
-            )
-            if not pdf.err:
-                return HttpResponse(result.getvalue(), content_type='application/pdf')
         else:
             return render(request, 'order_prepare.html', {'order_form': order_form})
+    else:
+        order = Order.objects.get(pk=order_id)
+
+    template = get_template("pdfs/order.html")
+    html = template.render({
+        "static_dir": settings.STATIC_ROOT,
+        "order": order
+    })
+    result = BytesIO()
+    pdf = pisa.pisaDocument(
+        src=BytesIO(html.encode('UTF-8')),
+        dest=result,
+        encoding='UTF-8'
+    )
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
