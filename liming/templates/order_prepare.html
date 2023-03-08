@@ -4,6 +4,8 @@
 <div class="card">
   <div class="card-body">
 
+    {% if order_form %}
+
     <center>
     <h2>Zamówienie</h2>
     </center>
@@ -94,6 +96,15 @@
           </div>
       </form>
     </div>
+
+    {% else %}
+
+    <div class="alert alert-danger">
+        Wybrane analizy utworzono dla różnych rolników. Nie można utworzyć jednego zamówienia.<br>
+        <a href="javascript:history.back()">Wróć do poprzedniej strony.</a>
+    </div>
+
+    {% endif %}
 
   </div>
 </div>

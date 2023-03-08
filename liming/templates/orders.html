@@ -84,10 +84,13 @@ $("#{{ farmer_form.farmer.id_for_label }}").change(function () {
         success: function(data) {
             $('#currentOrdersTable tbody').empty();
             if (data.orders.length > 0) {
-                var order_pdf_link_patern = '<a href=\"URL_HERE\" class=\"link-success\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"Generuj zamówienie pdf\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-card-list\" viewBox=\"0 0 16 16\"><path d=\"M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z\"/><path d=\"M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8zm0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z\"/></svg></a>';
+                var order_pdf_link_pattern = '<a href=\"URL_HERE\" class=\"link-success\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"Generuj zamówienie pdf\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-card-list\" viewBox=\"0 0 16 16\"><path d=\"M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z\"/><path d=\"M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8zm0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z\"/></svg></a>';
+                var remove_link_pattern = '<a href=\"URL_HERE\" class=\"link-danger\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"Usuń\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\"><path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z\"/><path fill-rule=\"evenodd\" d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z\"/></svg></a>';
                 for (order of data.orders) {
                     var lider_ca_info = (order.lider_ca_weight != '0.000' ? order.lider_ca_weight + ' / ' + order.lider_ca_price : '-');
                     var lider_mg_info = (order.lider_mg_weight != '0.000' ? order.lider_mg_weight + ' / ' + order.lider_mg_price : '-');
+                    var links = order_pdf_link_pattern.replace('URL_HERE', order.url);
+                    links += remove_link_pattern;
                     $('#currentOrdersTable > tbody:last-child').append($('<tr>')
                         .append($('<td>').append(order.growing_fields.replaceAll('\n', '<br>')))
                         .append($('<td>').append(lider_ca_info))
@@ -95,7 +98,7 @@ $("#{{ farmer_form.farmer.id_for_label }}").change(function () {
                         .append($('<td>').append(order.packing_type))
                         .append($('<td>').append(order.date))
                         .append($('<td>').append(order.operator))
-                        .append($('<td>').append(order_pdf_link_patern.replace('URL_HERE', order.url)))
+                        .append($('<td>').append(links))
                     );
                 }
                 init_tooltips();
