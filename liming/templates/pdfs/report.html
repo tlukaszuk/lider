@@ -10,22 +10,22 @@
     <h2>Raport z analizy potrzeb nawozowych Lider</h2>
     </center>
 
-    <table border="1" >
+    <table border="0" >
         <tr>
-            <td style="padding:10px" valign="top">
-                <b>Klient:</b><br>
+            <td style="padding:5px" valign="top">
+                <b style="color:#349400;">Klient:</b><br>
                 {{ ar.farmer.name }}<br>
                 {{ ar.farmer.location}}
             </td>
-            <td style="padding:10px" valign="top">
-                <b>Pole:</b><br>
+            <td style="padding:5px" valign="top">
+                <b style="color:#349400;">Pole:</b><br>
                 {{ ar.growing_field }}
             </td>
         </tr>
         <tr>
             <td colspan="2" style="padding:5px">
                 {% if ar.is_lider_ca_calculated %}
-                <b>Regulacja PH</b>
+                <b style="color:#349400;">Regulacja PH</b>
                 <table>
                     <tr>
                         <td>Typ uprawy:</td>
@@ -46,13 +46,13 @@
                         <td>{{ ar.pha_lider_ca_application_rate_per_hectare }}</td>
                     </tr>
                     <tr>
-                        <td style="color:#0000ff; font-weight:bold;">Dawka nawozu Lider Ca (t/pole):</td>
-                        <td style="color:#0000ff; font-weight:bold;">{{ ar.lider_ca_per_field_rounded }}</td>
+                        <td style="color:#349400; font-weight:bold;">Dawka nawozu Lider Ca (t/pole):</td>
+                        <td style="color:#349400; font-weight:bold;">{{ ar.lider_ca_per_field_rounded }}</td>
                     </tr>
                 </table>
                 {% endif %}
                 {% if ar.is_lider_mg_calculated %}
-                <b>Potrzeby uprawowe</b>
+                <b style="color:#349400;">Potrzeby uprawowe</b>
                 <table>
                     <tr>
                         <td>Rodzaj uprawy:</td>
@@ -67,8 +67,8 @@
                         <td>{{ ar.cn_lider_mg_application_rate_per_hectare }}</td>
                     </tr>
                     <tr>
-                        <td style="color:#0000ff; font-weight:bold;">Dawka nawozu Lider Mg (t/pole):</td>
-                        <td style="color:#0000ff; font-weight:bold;">{{ ar.lider_mg_per_field_rounded }}</td>
+                        <td style="color:#349400; font-weight:bold;">Dawka nawozu Lider Mg (t/pole):</td>
+                        <td style="color:#349400; font-weight:bold;">{{ ar.lider_mg_per_field_rounded }}</td>
                     </tr>
                 </table>
                 {% endif %}
@@ -76,7 +76,7 @@
         </tr>
         <tr>
             <td colspan="2" style="padding:5px">
-                <b>Przedstawiciel Rolpol:</b> {{ ar.operator.first_name }} {{ ar.operator.last_name }}
+                <b style="color:#349400;">Przedstawiciel Rolpol:</b> {{ ar.operator.first_name }} {{ ar.operator.last_name }}
             </td>
         </tr>
     </table>

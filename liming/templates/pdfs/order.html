@@ -10,20 +10,20 @@
     <h2>Zamówienie</h2>
     </center>
 
-    <table border="1">
+    <table border="0">
         <tr>
             <td style="padding:10px" valign="top">
-                <b>Klient:</b><br>
+                <b style="color:#349400;">Klient:</b><br>
                 {{ order.client|linebreaksbr }}
             </td>
             <td style="padding:10px" valign="top">
-                <b>Pola:</b><br>
+                <b style="color:#349400;">Pola:</b><br>
                 {{ order.growing_fields|linebreaksbr }}
             </td>
         </tr>
         <tr>
             <td colspan="2" style="padding:10px">
-                <table border="1" width="100%">
+                <table border="1" width="100%" style="border-color:#349400">
                     <tr>
                         <th width="25%" align="left">Nazwa</th>
                         <th width="25%" align="right">Ilość (t)</th>
@@ -53,7 +53,7 @@
         </tr>
         <tr>
             <td colspan="2" style="padding:5px">
-                <b>Przedstawiciel Rolpol:</b> {{ order.operator }}
+                <b style="color:#349400;">Przedstawiciel Rolpol:</b> {{ order.operator }}
             </td>
         </tr>
     </table>
